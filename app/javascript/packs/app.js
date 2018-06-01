@@ -5,6 +5,7 @@ import web3Helper from 'web3-helper';
 import utils from '../utils';
 import votingContract from '../voting-contract';
 
+import VueProgressBar from 'vue-progressbar'
 import NoMetaMask from '../components/no-metamask';
 import TopMenu from '../components/top-menu';
 import SideMenu from '../components/side-menu';
@@ -27,6 +28,9 @@ $(() => {
   const csrfToken = $("meta[name=csrf-token]").attr("content");
 
   Vue.use(VueRouter);
+  Vue.use(VueProgressBar, {
+    autoFinish: false
+  });
 
   // register components
   Vue.component('top-menu', TopMenu);
