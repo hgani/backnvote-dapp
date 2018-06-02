@@ -1,15 +1,14 @@
 export default {
-  parseQueryString
-}
-
-function parseQueryString() {
-  const qs = decodeURIComponent(window.location.search.substring(1)).split('&');
-  const result = {};
-  for (let i in qs) {
-    if (qs.hasOwnProperty(i)) {
-      const keyValue = qs[i].split('=');
-      result[keyValue[0]] = keyValue[1];
+  validateVotingForm(voting, cb) {
+    if (!web3Helper.metamaskLogin()) {
+      return alert("Please login to MetaMask");
     }
+
+    if (!voting.label) return ttr.error("Please enter valid label");
+    for (const item of voting.options) {
+      if (!item) return ttr.error("Please enter valid option");
+    }
+
+    return cb && cb();
   }
-  return result;
 }

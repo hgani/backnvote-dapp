@@ -30,9 +30,6 @@
 <script>
 export default {
   props: [
-    "web3",
-    "web3Helper",
-    "votingContract",
     "csrfToken",
     "readOnlyVoting",
     "submitting",

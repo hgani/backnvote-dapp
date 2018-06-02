@@ -2,16 +2,14 @@
   div
     h1 Votings
     div(v-for="(voting, index) in votings")
-      voting(
-        :web3="web3" 
-        :web3-helper="web3Helper" 
-        :voting-contract="votingContract" 
+      voting( 
         :voting="voting"
       )
 </template>
 
 <script>
 import Vue from "vue/dist/vue.esm";
+import votingContract from "../voting-contract";
 
 const ttrOption = {
   closeButton: true,
@@ -22,7 +20,6 @@ const ttrOption = {
 };
 
 export default {
-  props: ["web3", "web3Helper", "votingContract"],
   data() {
     return {
       votings: []
@@ -31,7 +28,6 @@ export default {
   created() {
     const self = this;
 
-    const { web3, web3Helper, votingContract } = self;
     const Contract = web3.eth.contract(votingContract.ABI);
 
     $.ajax({
@@ -102,7 +98,6 @@ export default {
     getOptionVotes() {
       const self = this;
 
-      const { web3, web3Helper, votingContract } = self;
       const Contract = web3.eth.contract(votingContract.ABI);
 
       for (const voting of self.votings) {

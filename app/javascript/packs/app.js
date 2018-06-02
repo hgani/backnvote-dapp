@@ -3,7 +3,6 @@ import Vue from 'vue/dist/vue.esm';
 import VueRouter from 'vue-router';
 import web3Helper from 'web3-helper';
 import utils from '../utils';
-import votingContract from '../voting-contract';
 
 import VueProgressBar from 'vue-progressbar'
 import NoMetaMask from '../components/no-metamask';
@@ -17,8 +16,9 @@ import Votings from '../components/votings';
 import VotingsShow from '../components/votings-show';
 import VotingsNew from '../components/votings-new';
 import VotingsEdit from '../components/votings-edit';
+import User from '../components/user';
 
-const web3 = global.web3;
+global.web3Helper = web3Helper;
 
 $(() => {
   web3Helper.checkMetamask(4);
@@ -44,10 +44,6 @@ $(() => {
       routes: [{
         path: '/',
         component: web3 ? App : NoMetaMask,
-        props: {
-          web3,
-          web3Helper
-        },
         children: [{
             path: '',
             component: {
@@ -60,29 +56,16 @@ $(() => {
           },
           {
             path: 'votings',
-            component: Votings,
-            props: {
-              web3,
-              web3Helper,
-              votingContract
-            }
+            component: Votings
           },
           {
             path: 'votings/:address(0x\\w+)',
-            component: VotingsShow,
-            props: {
-              web3,
-              web3Helper,
-              votingContract
-            }
+            component: VotingsShow
           },
           {
             path: 'votings/new',
             component: VotingsNew,
             props: {
-              web3,
-              web3Helper,
-              votingContract,
               csrfToken
             }
           },
@@ -90,11 +73,12 @@ $(() => {
             path: 'votings/:address/edit',
             component: VotingsEdit,
             props: {
-              web3,
-              web3Helper,
-              votingContract,
               csrfToken
             }
+          },
+          {
+            path: 'users/:address',
+            component: User
           }
         ]
       }]

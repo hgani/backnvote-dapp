@@ -1,15 +1,13 @@
 <template lang='pug'>
   div
     voting(
-      :web3="web3" 
-      :web3-helper="web3Helper" 
-      :voting-contract="votingContract" 
       :voting="voting"
     )
 </template>
 
 <script>
 import Vue from "vue/dist/vue.esm";
+import votingContract from "../voting-contract";
 
 const ttrOption = {
   closeButton: true,
@@ -30,10 +28,8 @@ export default {
   created() {
     const self = this;
 
-    const { web3, web3Helper, votingContract } = self;
     const Contract = web3.eth.contract(votingContract.ABI);
     const route = self.$router.currentRoute;
-
     const address = route.params.address;
 
     $.ajax({
@@ -108,9 +104,7 @@ export default {
     getOptionVotes() {
       const self = this;
 
-      const { web3, web3Helper, votingContract } = self;
       const Contract = web3.eth.contract(votingContract.ABI);
-
       const contract = Contract.at(self.voting.address);
 
       // for each voting options

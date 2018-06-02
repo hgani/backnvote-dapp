@@ -19,9 +19,6 @@
           i
             a(:href='voting.txUrl') {{voting.tx_hash}}
         voting-form(      
-          :web3="web3" 
-          :web3-helper="web3Helper" 
-          :voting-contract="votingContract" 
           :csrf-token="csrfToken"
           :read-only-voting="voting"
           :submitting="submitting"
@@ -31,8 +28,19 @@
 </template>
 
 <script>
+import votingContract from "../voting-contract";
+import Utils from "../utils";
+
+const ttrOption = {
+  closeButton: true,
+  positionClass: "toast-bottom-full-width",
+  timeOut: 0,
+  extendedTimeOut: 0,
+  tapToDismiss: false
+};
+
 export default {
-  props: ["web3", "web3Helper", "votingContract", "csrfToken"],
+  props: ["csrfToken"],
   data() {
     return {
       voting: { options: [] },
@@ -42,7 +50,6 @@ export default {
   created() {
     const self = this;
 
-    const { web3, web3Helper, votingContract } = self;
     const Contract = web3.eth.contract(votingContract.ABI);
     const route = self.$router.currentRoute;
 
@@ -75,46 +82,30 @@ export default {
     submit(voting) {
       const self = this;
 
-      const { web3, web3Helper, votingContract, csrfToken } = self;
-
-      const ttrOption = {
-        closeButton: true,
-        positionClass: "toast-bottom-full-width",
-        timeOut: 0,
-        extendedTimeOut: 0,
-        tapToDismiss: false
-      };
-
+      const { csrfToken } = self;
       const creator = web3.eth.defaultAccount;
 
-      if (!self.web3Helper.metamaskLogin()) {
-        return alert("Please login to MetaMask");
-      }
-
-      if (!voting.label) return ttr.error("Please enter valid label");
-      for (const item of voting.options) {
-        if (!item) return ttr.error("Please enter valid option");
-      }
-
-      self.submitting = true;
-      $.ajax({
-        url: `/votings/${voting.address}.json`,
-        method: "post",
-        data: {
-          _method: "patch",
-          label: voting.label,
-          description: voting.description,
-          options: JSON.stringify(voting.options),
-          authenticity_token: csrfToken
-        },
-        success() {
-          self.submitting = false;
-          ttr.success("Your contract has been saved", null, ttrOption);
-        },
-        error() {
-          self.submitting = false;
-          ttr.error("Error when saving contract", null, ttrOption);
-        }
+      Utils.validateVotingForm(voting, () => {
+        self.submitting = true;
+        $.ajax({
+          url: `/votings/${voting.address}.json`,
+          method: "post",
+          data: {
+            _method: "patch",
+            label: voting.label,
+            description: voting.description,
+            options: JSON.stringify(voting.options),
+            authenticity_token: csrfToken
+          },
+          success() {
+            self.submitting = false;
+            ttr.success("Your contract has been saved", null, ttrOption);
+          },
+          error() {
+            self.submitting = false;
+            ttr.error("Error when saving contract", null, ttrOption);
+          }
+        });
       });
     }
   }

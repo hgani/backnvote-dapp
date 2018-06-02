@@ -72,6 +72,8 @@
 </template>
 
 <script>
+import votingContract from '../voting-contract';
+
 const ttrOption = {
   closeButton: true,
   positionClass: "toast-bottom-full-width",
@@ -81,7 +83,7 @@ const ttrOption = {
 };
 
 export default {
-  props: ["web3", "web3Helper", "votingContract", "voting"],
+  props: ["voting"],
   data() {
     return {
       showInfo: false,
@@ -98,7 +100,6 @@ export default {
       const self = this;
       const voting = self.voting;
 
-      const { web3, web3Helper, votingContract } = self;
       const Contract = web3.eth.contract(votingContract.ABI);
       const contract = Contract.at(voting.address);
 
@@ -149,9 +150,8 @@ export default {
     },
     unvote(option) {
       const self = this;
-      const voting = self.voting;
 
-      const { web3, web3Helper, votingContract } = self;
+      const voting = self.voting;
       const Contract = web3.eth.contract(votingContract.ABI);
       const contract = Contract.at(voting.address);
 
@@ -195,9 +195,8 @@ export default {
     },
     approve(option) {
       const self = this;
-      const voting = self.voting;
 
-      const { web3, web3Helper, votingContract } = self;
+      const voting = self.voting;
       const Contract = web3.eth.contract(votingContract.ABI);
       const contract = Contract.at(voting.address);
 
@@ -230,9 +229,8 @@ export default {
     },
     cancel(option) {
       const self = this;
-      const voting = self.voting;
 
-      const { web3, web3Helper, votingContract } = self;
+      const voting = self.voting;
       const Contract = web3.eth.contract(votingContract.ABI);
       const contract = Contract.at(voting.address);
 
@@ -265,9 +263,8 @@ export default {
     },
     withdraw(option) {
       const self = this;
-      const voting = self.voting;
 
-      const { web3, web3Helper, votingContract } = self;
+      const voting = self.voting;
       const Contract = web3.eth.contract(votingContract.ABI);
       const contract = Contract.at(voting.address);
 

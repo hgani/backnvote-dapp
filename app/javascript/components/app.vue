@@ -1,5 +1,7 @@
 <template lang='pug'>
   div
+    vue-progress-bar
+
     top-menu(:node='node')
 
     .container.my-3
@@ -12,7 +14,6 @@
 
 <script>
 export default {
-  props: ["web3", "web3Helper"],
   data() {
     return {
       node: {
@@ -23,25 +24,28 @@ export default {
   created: function() {
     const self = this;
 
-    self.web3Helper.onCheckInstall(() => {
-      if (!self.web3Helper.metamaskInstalled()) {
+    web3Helper.onCheckInstall(() => {
+      if (!web3Helper.metamaskInstalled()) {
         alert("Please install MetaMask");
       }
     });
 
-    self.web3Helper.onCheckLogin(() => {
-      if (!self.web3Helper.metamaskLogin()) {
+    web3Helper.onCheckLogin(() => {
+      if (!web3Helper.metamaskLogin()) {
         alert("Please login to MetaMask");
       }
     });
 
     setInterval(
       () =>
-        self.web3Helper.getNetwork((err, net) => {
+        web3Helper.getNetwork((err, net) => {
           self.node.network = net;
         }),
       1000
     );
+
+    $(document).ajaxStart(() => self.$Progress.start());
+    $(document).ajaxStop(() => self.$Progress.finish());
   }
 };
 </script>
