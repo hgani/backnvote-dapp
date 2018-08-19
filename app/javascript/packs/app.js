@@ -2,7 +2,6 @@ import _ from 'lodash';
 import Vue from 'vue/dist/vue.esm';
 import VueRouter from 'vue-router';
 import web3Helper from 'web3-helper';
-import utils from '../utils';
 
 import VueProgressBar from 'vue-progressbar'
 import NoMetaMask from '../components/no-metamask';

@@ -72,7 +72,8 @@
 </template>
 
 <script>
-import votingContract from '../voting-contract';
+import votingContract from "../voting-contract";
+import store from "../store";
 
 const ttrOption = {
   closeButton: true,
@@ -86,6 +87,7 @@ export default {
   props: ["voting"],
   data() {
     return {
+      store,
       showInfo: false,
       submitting: false
     };
@@ -117,7 +119,6 @@ export default {
       }
 
       self.submitting = true;
-
       contract.vote.estimateGas(
         option,
         { value: voting.minimumFund },
@@ -139,8 +140,8 @@ export default {
               self.submitting = false;
 
               const link = `<a class="btn btn-primary" href="${
-                web3Helper.viewTxPath
-              }/${data}" target="_blank">
+                self.store.etherScanRoot
+              }/tx/${data}" target="_blank">
         View Transaction on Etherscan</a>`;
               ttr.success(`Transaction Success. ${link}`, null, ttrOption);
             }
@@ -185,8 +186,8 @@ export default {
             self.submitting = false;
 
             const link = `<a class="btn btn-primary" href="${
-              web3Helper.viewTxPath
-            }/${data}" target="_blank">
+              self.store.etherScanRoot
+            }/tx/${data}" target="_blank">
         View Transaction on Etherscan</a>`;
             ttr.success(`Transaction Success. ${link}`, null, ttrOption);
           }
@@ -219,8 +220,8 @@ export default {
             self.submitting = false;
 
             const link = `<a class="btn btn-primary" href="${
-              web3Helper.viewTxPath
-            }/${data}" target="_blank">
+              self.store.etherScanRoot
+            }/tx/${data}" target="_blank">
         View Transaction on Etherscan</a>`;
             ttr.success(`Transaction Success. ${link}`, null, ttrOption);
           }
@@ -253,8 +254,8 @@ export default {
             self.submitting = false;
 
             const link = `<a class="btn btn-primary" href="${
-              web3Helper.viewTxPath
-            }/${data}" target="_blank">
+              self.store.etherScanRoot
+            }/tx/${data}" target="_blank">
         View Transaction on Etherscan</a>`;
             ttr.success(`Transaction Success. ${link}`, null, ttrOption);
           }
@@ -287,8 +288,8 @@ export default {
             self.submitting = false;
 
             const link = `<a class="btn btn-primary" href="${
-              web3Helper.viewTxPath
-            }/${data}" target="_blank">
+              self.store.etherScanRoot
+            }/tx/${data}" target="_blank">
         View Transaction on Etherscan</a>`;
             ttr.success(`Transaction Success. ${link}`, null, ttrOption);
           }

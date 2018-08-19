@@ -58,58 +58,63 @@ export default {
 
     self.address = route.params.address;
 
-    $.ajax({
-      url: "votings.json",
-      success(data) {
-        const votings = [];
+    web3Helper.getNetwork((err, net) => {
+      if (err) throw err;
 
-        for (const voting of data.votings) {
-          voting.userCreator =
-            voting.creator.toLowerCase() === self.address.toLowerCase();
-          voting.options = JSON.parse(voting.options);
+      $.ajax({
+        url: "votings.json",
+        data: { network: net },
+        success(data) {
+          const votings = [];
 
-          if (voting.userCreator) {
-            self.noVotingCreated = false;
-          }
+          for (const voting of data.votings) {
+            voting.userCreator =
+              voting.creator.toLowerCase() === self.address.toLowerCase();
+            voting.options = JSON.parse(voting.options);
 
-          if (voting.options && voting.options.length) {
-            voting.options = _.map(voting.options, (value, index) => ({
-              votingLabel: voting.label,
-              votingAddress: voting.address,
-              key: index,
-              label: value
-            }));
-            const contract = Contract.at(voting.address);
-
-            for (let option of voting.options) {
-              (option => {
-                contract.allVotes.call(
-                  option.key,
-                  self.address,
-                  (err, data) => {
-                    if (err) throw err;
-
-                    option.voter = self.address;
-                    option.selected = data[0];
-                    option.fund = parseInt(data[1]);
-                    option.cancel = data[2];
-
-                    if (option.selected && !option.cancel) {
-                      self.noActiveVotes = false;
-                    }
-
-                    self.$forceUpdate();
-                  }
-                );
-              })(option);
+            if (voting.userCreator) {
+              self.noVotingCreated = false;
             }
+
+            if (voting.options && voting.options.length) {
+              voting.options = _.map(voting.options, (value, index) => ({
+                votingLabel: voting.label,
+                votingAddress: voting.address,
+                key: index,
+                label: value
+              }));
+              const contract = Contract.at(voting.address);
+
+              for (let option of voting.options) {
+                (option => {
+                  contract.allVotes.call(
+                    option.key,
+                    self.address,
+                    (err, data) => {
+                      if (err) throw err;
+
+                      option.voter = self.address;
+                      option.selected = data[0];
+                      option.fund = parseInt(data[1]);
+                      option.cancel = data[2];
+
+                      if (option.selected && !option.cancel) {
+                        self.noActiveVotes = false;
+                      }
+
+                      self.$forceUpdate();
+                    }
+                  );
+                })(option);
+              }
+            }
+
+            votings.push(voting);
           }
 
-          votings.push(voting);
+          self.votings = votings;
         }
-
-        self.votings = votings;
-      }
+      });
     });
   }
 };

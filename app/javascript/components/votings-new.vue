@@ -13,6 +13,7 @@
 <script>
 import votingContract from "../voting-contract";
 import Utils from "../utils";
+import store from "../store";
 
 const ttrOption = {
   closeButton: true,
@@ -26,6 +27,7 @@ export default {
   props: ["csrfToken"],
   data() {
     return {
+      store,
       voting: {
         minimumFund: 0.01,
         endBlock: 0,
@@ -78,37 +80,43 @@ export default {
               }
 
               const link = `<a class="btn btn-primary" href="${
-                web3Helper.viewTxPath
-              }/${
+                self.store.etherScanRoot
+              }/tx/${
                 data.transactionHash
               }" target="_blank">View Transaction on Etherscan</a>`;
 
               if (!data.address) {
                 ttr.success(`Transaction Success. ${link}`, null, ttrOption);
-                $.ajax({
-                  url: "/votings.json",
-                  method: "post",
-                  data: {
-                    tx_hash: data.transactionHash,
-                    creator,
-                    label: voting.label,
-                    description: voting.description,
-                    options: JSON.stringify(voting.options),
-                    authenticity_token: csrfToken
-                  },
-                  success() {
-                    self.submitting = false;
-                    self.resetVoting();
-                    ttr.success(
-                      "Your contract has been saved",
-                      null,
-                      ttrOption
-                    );
-                  },
-                  error() {
-                    self.submitting = false;
-                    ttr.error("Error when saving contract", null, ttrOption);
-                  }
+
+                web3Helper.getNetwork((err, net) => {
+                  if (err) throw err;
+
+                  $.ajax({
+                    url: "/votings.json",
+                    method: "post",
+                    data: {
+                      network: net,
+                      tx_hash: data.transactionHash,
+                      creator,
+                      label: voting.label,
+                      description: voting.description,
+                      options: JSON.stringify(voting.options),
+                      authenticity_token: csrfToken
+                    },
+                    success() {
+                      self.submitting = false;
+                      self.resetVoting();
+                      ttr.success(
+                        "Your contract has been saved",
+                        null,
+                        ttrOption
+                      );
+                    },
+                    error() {
+                      self.submitting = false;
+                      ttr.error("Error when saving contract", null, ttrOption);
+                    }
+                  });
                 });
               }
             }

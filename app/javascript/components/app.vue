@@ -2,7 +2,7 @@
   div
     vue-progress-bar
 
-    top-menu(:node='node')
+    top-menu
 
     .container.my-3
       .row
@@ -15,11 +15,7 @@
 <script>
 export default {
   data() {
-    return {
-      node: {
-        network: null
-      }
-    };
+    return {};
   },
   created: function() {
     const self = this;
@@ -35,14 +31,6 @@ export default {
         alert("Please login to MetaMask");
       }
     });
-
-    setInterval(
-      () =>
-        web3Helper.getNetwork((err, net) => {
-          self.node.network = net;
-        }),
-      1000
-    );
 
     $(document).ajaxStart(() => self.$Progress.start());
     $(document).ajaxStop(() => self.$Progress.finish());

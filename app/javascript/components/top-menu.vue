@@ -9,11 +9,17 @@
           //- li.nav-item
             a.nav-link(href='#') Link
           li.nav-item
-           span Network: {{node.network}}
+           span Network: {{store.network}}
 </template>
 
 <script>
+import store from "../store";
+
 export default {
-  props: ["node"]
+  data() {
+    return {
+      store
+    };
+  }
 };
 </script>

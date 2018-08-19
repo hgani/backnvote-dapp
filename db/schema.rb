@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180205111102) do
+ActiveRecord::Schema.define(version: 20180728030356) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,6 +24,7 @@ ActiveRecord::Schema.define(version: 20180205111102) do
     t.string "options"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "network", default: 0, null: false
     t.index ["address"], name: "index_voting_contracts_on_address"
     t.index ["tx_hash"], name: "index_voting_contracts_on_tx_hash"
   end

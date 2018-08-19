@@ -30,6 +30,7 @@
 <script>
 import votingContract from "../voting-contract";
 import Utils from "../utils";
+import store from "../store";
 
 const ttrOption = {
   closeButton: true,
@@ -43,6 +44,7 @@ export default {
   props: ["csrfToken"],
   data() {
     return {
+      store,
       voting: { options: [] },
       submitting: false
     };
@@ -55,27 +57,32 @@ export default {
 
     const address = route.params.address;
 
-    $.ajax({
-      url: `votings/${address}.json`,
-      success(data) {
-        const voting = data.voting;
+    web3Helper.getNetwork((err, net) => {
+      if (err) throw err;
 
-        if (!voting) {
-          return self.$router.push("/not-found");
-        }
+      $.ajax({
+        url: `votings/${address}.json`,
+        data: { network: net },
+        success(data) {
+          const voting = data.voting;
 
-        voting.options = JSON.parse(voting.options);
-        voting.addressUrl = `${web3Helper.viewAddressPath}/${voting.address}`;
-        voting.creatorUrl = `${web3Helper.viewAddressPath}/${voting.creator}`;
-        voting.txUrl = `${web3Helper.viewTxPath}/${voting.tx_hash}`;
-        voting.currentUserCreator =
-          web3.eth.defaultAccount &&
-          web3.eth.defaultAccount.toLowerCase() ===
-            voting.creator.toLowerCase();
+          if (!voting) {
+            return self.$router.push("/not-found");
+          }
 
-        self.voting = voting;
-      },
-      error() {}
+          voting.options = JSON.parse(voting.options);
+          voting.addressUrl = `${self.store.etherScanRoot}/address/${voting.address}`;
+          voting.creatorUrl = `${self.store.etherScanRoot}/address/${voting.creator}`;
+          voting.txUrl = `${self.store.etherScanRoot}/tx/${voting.tx_hash}`;
+          voting.currentUserCreator =
+            web3.eth.defaultAccount &&
+            web3.eth.defaultAccount.toLowerCase() ===
+              voting.creator.toLowerCase();
+
+          self.voting = voting;
+        },
+        error() {}
+      });
     });
   },
   methods: {
@@ -87,24 +94,30 @@ export default {
 
       Utils.validateVotingForm(voting, () => {
         self.submitting = true;
-        $.ajax({
-          url: `/votings/${voting.address}.json`,
-          method: "post",
-          data: {
-            _method: "patch",
-            label: voting.label,
-            description: voting.description,
-            options: JSON.stringify(voting.options),
-            authenticity_token: csrfToken
-          },
-          success() {
-            self.submitting = false;
-            ttr.success("Your contract has been saved", null, ttrOption);
-          },
-          error() {
-            self.submitting = false;
-            ttr.error("Error when saving contract", null, ttrOption);
-          }
+
+        web3Helper.getNetwork((err, net) => {
+          if (err) throw err;
+
+          $.ajax({
+            url: `/votings/${voting.address}.json`,
+            method: "post",
+            data: {
+              _method: "patch",
+              network: net,
+              label: voting.label,
+              description: voting.description,
+              options: JSON.stringify(voting.options),
+              authenticity_token: csrfToken
+            },
+            success() {
+              self.submitting = false;
+              ttr.success("Your contract has been saved", null, ttrOption);
+            },
+            error() {
+              self.submitting = false;
+              ttr.error("Error when saving contract", null, ttrOption);
+            }
+          });
         });
       });
     }

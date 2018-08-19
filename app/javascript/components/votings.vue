@@ -10,6 +10,7 @@
 <script>
 import Vue from "vue/dist/vue.esm";
 import votingContract from "../voting-contract";
+import store from "../store";
 
 const ttrOption = {
   closeButton: true,
@@ -22,6 +23,8 @@ const ttrOption = {
 export default {
   data() {
     return {
+      store,
+      network: store.web3,
       votings: []
     };
   },
@@ -30,68 +33,77 @@ export default {
 
     const Contract = web3.eth.contract(votingContract.ABI);
 
-    $.ajax({
-      url: "votings.json",
-      success(data) {
-        for (const voting of data.votings) {
-          voting.balance = null;
-          voting.minimumFund = null;
-          voting.endBlock = null;
-          voting.options = JSON.parse(voting.options);
-          voting.optionVotes = [];
-          voting.optionApproves = [];
-          voting.optionFunds = [];
-          voting.addressUrl = `${web3Helper.viewAddressPath}/${voting.address}`;
-          voting.creatorUrl = `${web3Helper.viewAddressPath}/${voting.creator}`;
-          voting.txUrl = `${web3Helper.viewTxPath}/${voting.tx_hash}`;
-          voting.currentUserCreator =
-            web3.eth.defaultAccount &&
-            web3.eth.defaultAccount.toLowerCase() ===
-              voting.creator.toLowerCase();
+    web3Helper.getNetwork((err, net) => {
+      if (err) throw err;
 
-          const contract = Contract.at(voting.address);
+      $.ajax({
+        url: "votings.json",
+        data: { network: net },
+        success(data) {
+          for (const voting of data.votings) {
+            voting.balance = null;
+            voting.minimumFund = null;
+            voting.endBlock = null;
+            voting.options = JSON.parse(voting.options);
+            voting.optionVotes = [];
+            voting.optionApproves = [];
+            voting.optionFunds = [];
+            voting.addressUrl = `${self.store.etherScanRoot}/address/${
+              voting.address
+            }`;
+            voting.creatorUrl = `${self.store.etherScanRoot}/address/${
+              voting.creator
+            }`;
+            voting.txUrl = `${self.store.etherScanRoot}/tx/${voting.tx_hash}`;
+            voting.currentUserCreator =
+              web3.eth.defaultAccount &&
+              web3.eth.defaultAccount.toLowerCase() ===
+                voting.creator.toLowerCase();
 
-          (function(voting, contract) {
-            web3.eth.getBalance(voting.address, (err, data) => {
-              if (err) throw err;
+            const contract = Contract.at(voting.address);
 
-              voting.balance = parseInt(data);
-            });
+            (function(voting, contract) {
+              web3.eth.getBalance(voting.address, (err, data) => {
+                if (err) throw err;
 
-            contract.minimumFund.call((err, data) => {
-              if (err) throw err;
+                voting.balance = parseInt(data);
+              });
 
-              voting.minimumFund = parseInt(data);
-            });
+              contract.minimumFund.call((err, data) => {
+                if (err) throw err;
 
-            contract.endBlock.call((err, data) => {
-              if (err) throw err;
+                voting.minimumFund = parseInt(data);
+              });
 
-              voting.endBlock = parseInt(data);
-            });
+              contract.endBlock.call((err, data) => {
+                if (err) throw err;
 
-            for (const key in voting.options) {
-              (function(key) {
-                contract.approves.call(key, (err, data) => {
-                  if (err) throw err;
+                voting.endBlock = parseInt(data);
+              });
 
-                  voting.optionApproves.splice(key, 1, parseInt(data));
-                });
+              for (const key in voting.options) {
+                (function(key) {
+                  contract.approves.call(key, (err, data) => {
+                    if (err) throw err;
 
-                contract.funds.call(key, (err, data) => {
-                  if (err) throw err;
+                    voting.optionApproves.splice(key, 1, parseInt(data));
+                  });
 
-                  voting.optionFunds.splice(key, 1, parseInt(data));
-                });
-              })(key);
-            }
-          })(voting, contract); // save params inside closure
-        }
+                  contract.funds.call(key, (err, data) => {
+                    if (err) throw err;
 
-        self.votings = data.votings;
-        self.getOptionVotes();
-      },
-      error() {}
+                    voting.optionFunds.splice(key, 1, parseInt(data));
+                  });
+                })(key);
+              }
+            })(voting, contract); // save params inside closure
+          }
+
+          self.votings = data.votings;
+          self.getOptionVotes();
+        },
+        error() {}
+      });
     });
   },
   methods: {

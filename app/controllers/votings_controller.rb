@@ -1,7 +1,7 @@
 class VotingsController < ApplicationController
   def index
-    #votings = VotingContract.where.not(address: nil).order(created_at: :desc)
-    votings = VotingContract.order(created_at: :desc)
+    network = VotingContract.networks[params[:network]]
+    votings = VotingContract.where(network: network).where.not(address: nil).order(created_at: :desc)
     respond_to do |format|
       format.json do
         render(json: { votings: votings, pagination: {} })
@@ -10,7 +10,8 @@ class VotingsController < ApplicationController
   end
 
   def show
-    voting = VotingContract.where('lower(address) = lower(?)', params[:id]).first
+    network = VotingContract.networks[params[:network]]
+    voting = VotingContract.where(network: network).where('lower(address) = lower(?)', params[:id]).first
     respond_to do |format|
       format.json do
         render(json: { voting: voting })
@@ -21,6 +22,7 @@ class VotingsController < ApplicationController
   def create
     respond_to do |format|
       format.json do
+        network = VotingContract.networks[params[:network]]
         tx_hash = params[:tx_hash]
         creator = params[:creator]
         label = params[:label]
@@ -28,6 +30,7 @@ class VotingsController < ApplicationController
         options = params[:options]
 
         voting = VotingContract.create(
+          network: network,
           tx_hash: tx_hash,
           creator: creator,
           label: label,
@@ -40,7 +43,8 @@ class VotingsController < ApplicationController
   end
 
   def update
-    voting = VotingContract.find_by(address: params[:id])
+    network = VotingContract.networks[params[:network]]
+    voting = VotingContract.find_by(network: network, address: params[:id])
 
     respond_to do |format|
       format.json do
