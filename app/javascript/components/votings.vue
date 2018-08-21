@@ -125,6 +125,7 @@ export default {
 
               votes.currentUserFund = 0;
               votes.currentUserCancel = false;
+              votes.validCount = 0;
 
               // for each votes
               for (let i = 0; i < data[0].length; i++) {
@@ -142,6 +143,10 @@ export default {
                 if (isCurrentUser) {
                   votes.currentUserFund = value.fund;
                   votes.currentUserCancel = value.isCancel;
+                }
+
+                if (value.fund && !value.isCancel) {
+                  votes.validCount++;
                 }
 
                 votes.push(value);
