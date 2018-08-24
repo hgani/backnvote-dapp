@@ -8,17 +8,17 @@
       div(v-if="showInfo")
         strong= 'Address: '
         i
-          a(:href='voting.addressUrl') {{voting.address}}
+          a(:href="`${store.etherScanRoot}/address/${voting.address}`") {{voting.address}}
         br
         strong= 'Creator: '
         i
-          a(:href='voting.creatorUrl') {{voting.creator}}
+          a(:href="`${store.etherScanRoot}/address/${voting.creator}`") {{voting.creator}}
         = ' '
         span.badge.badge-info {{voting.currentUserCreator ? 'you' : ''}}
         br
         strong= 'Tx (deployed): '
         i
-          a(:href='voting.txUrl') {{voting.tx_hash}}
+          a(:href="`${store.etherScanRoot}/tx/${voting.tx_hash}`") {{voting.tx_hash}}
       div.text-right
         small
           a(href="" @click.prevent="toggleInfo") {{ showInfo ? 'Hide Info' : 'Show Info' }}           
@@ -35,7 +35,7 @@
     .card-footer.bg-white
         strong Options
         div.my-3.py-2.px-1(
-          v-for='(option, index) in voting.options'
+          v-for="(option, index) in voting.options"
         )
           .d-flex
             .d-flex.flex-grow-1.align-items-center.justify-content-center
@@ -46,6 +46,8 @@
                   .progress.flex-grow-1.w-100(style="height: 20px")
                     .progress-bar.bg-success(:style="{width: `${voting.optionFunds[index] ? ((voting.optionFunds[index] / voting.balance) * 100) : 1}%`}")
                   small.px-2(style="width: 200px") 
+                    // Don't forget to init optionFunds[index] with default value.
+                    // Because optionFunds[index] may be undefined.  
                     | {{voting.optionFunds[index] / 1e18}} ETH 
                     | {{(voting.optionVotes[index] && voting.optionVotes[index].validCount) ? `(${voting.optionVotes[index].validCount} backers)` : ''}}                    
             .d-flex.align-items-center.justify-content-end

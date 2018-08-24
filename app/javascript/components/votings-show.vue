@@ -54,9 +54,6 @@ export default {
           voting.optionVotes = [];
           voting.optionApproves = [];
           voting.optionFunds = [];
-          voting.addressUrl = `${self.store.etherScanRoot}/address/${voting.address}`;
-          voting.creatorUrl = `${self.store.etherScanRoot}/address/${voting.creator}`;
-          voting.txUrl = `${self.store.etherScanRoot}/tx/${voting.tx_hash}`;
           voting.currentUserCreator =
             web3.eth.defaultAccount &&
             web3.eth.defaultAccount.toLowerCase() ===
@@ -85,6 +82,9 @@ export default {
 
             for (const key in voting.options) {
               (function(key) {
+                // Set default value
+                voting.optionFunds.splice(key, 1, 0);
+
                 contract.approves.call(key, (err, data) => {
                   if (err) throw err;
 
