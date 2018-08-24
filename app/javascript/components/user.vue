@@ -19,9 +19,9 @@
                 td {{voting.label}}
                 td 
                   small 
-                    router-link(:to="`/votings/${voting.address}`") {{voting.address}}
-        div(v-if="noVotingCreated")
-          p There is no voting created by this user   
+                    router-link(:to="`/votings/${voting.address}`") {{voting.address}}   
+        ajax-status(:loading="loadingVotings" :no-data="noVotingCreated")
+          | There is no voting created by this user                           
       #votes.tab-pane.fade 
         table.table
           thead
@@ -39,8 +39,8 @@
                       router-link(:to="`/votings/${option.votingAddress}`") {{option.votingAddress}}
                   td {{option.label}}
                   td {{option.fund / 1e18}} ETH
-        div(v-if="noActiveVotes")
-          p There is no active votes    
+        ajax-status(:loading="loadingVotings" :no-data="noActiveVotes")
+          | There is no active votes                   
 </template>
 
 <script>
@@ -48,7 +48,12 @@ import votingContract from "../voting-contract";
 
 export default {
   data() {
-    return { votings: [], noVotingCreated: true, noActiveVotes: true };
+    return {
+      votings: [],
+      noVotingCreated: true,
+      noActiveVotes: true,
+      loadingVotings: true
+    };
   },
   created() {
     const self = this;
@@ -113,6 +118,7 @@ export default {
           }
 
           self.votings = votings;
+          self.loadingVotings = false;
         }
       });
     });

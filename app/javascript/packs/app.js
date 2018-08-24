@@ -3,7 +3,8 @@ import Vue from 'vue/dist/vue.esm';
 import VueRouter from 'vue-router';
 import web3Helper from 'web3-helper';
 
-import VueProgressBar from 'vue-progressbar'
+import VueProgressBar from 'vue-progressbar';
+import AjaxStatus from '../components/ajax-status';
 import NoMetaMask from '../components/no-metamask';
 import TopMenu from '../components/top-menu';
 import SideMenu from '../components/side-menu';
@@ -32,6 +33,7 @@ $(() => {
   });
 
   // register components
+  Vue.component('ajax-status', AjaxStatus);
   Vue.component('top-menu', TopMenu);
   Vue.component('side-menu', SideMenu);
   Vue.component('voting', Voting);
