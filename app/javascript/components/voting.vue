@@ -83,6 +83,7 @@
 <script>
 import votingContract from "../voting-contract";
 import store from "../store";
+import Utils from "../utils";
 
 const ttrOption = {
   closeButton: true,
@@ -114,49 +115,47 @@ export default {
       const Contract = web3.eth.contract(votingContract.ABI);
       const contract = Contract.at(voting.address);
 
-      let fund = prompt(
-        `Please enter amount of ETH (minimum ${voting.minimumFund / 1e18} ETH)`
-      );
-      if (fund === null) {
-        return;
-      } else {
-        fund = parseFloat(fund);
-      }
-
-      if (isNaN(fund) || fund * 1e18 < voting.minimumFund) {
-        return ttr.error("Please enter valid fund");
-      }
-
-      self.submitting = true;
-      contract.vote.estimateGas(
-        option,
-        { value: voting.minimumFund },
-        (err, data) => {
-          if (err) {
-            self.submitting = false;
-            throw err;
-          }
-
-          contract.vote.sendTransaction(
-            option,
-            { value: fund * 1e18, gas: data, gasPrice: 30 * 1e9 },
-            (err, data) => {
-              if (err) {
-                self.submitting = false;
-                throw err;
-              }
-
-              self.submitting = false;
-
-              const link = `<a class="btn btn-primary" href="${
-                self.store.etherScanRoot
-              }/tx/${data}" target="_blank">
-        View Transaction on Etherscan</a>`;
-              ttr.success(`Transaction Success. ${link}`, null, ttrOption);
-            }
-          );
+      Utils.ensureLogin(err => {
+        if (err) {
+          throw err;
         }
-      );
+
+        let fund = prompt(
+          `Please enter amount of ETH (minimum ${voting.minimumFund /
+            1e18} ETH)`
+        );
+        if (fund === null) {
+          return;
+        } else {
+          fund = parseFloat(fund);
+        }
+
+        if (isNaN(fund) || fund * 1e18 < voting.minimumFund) {
+          return ttr.error("Please enter valid fund");
+        }
+
+        self.submitting = true;
+        Utils.submitTx(
+          contract,
+          "vote",
+          [option],
+          { value: fund * 1e18 },
+          (err, data) => {
+            if (err) {
+              self.submitting = false;
+              throw err;
+            }
+
+            self.submitting = false;
+
+            const link = `<a class="btn btn-primary" href="${
+              self.store.etherScanRoot
+            }/tx/${data}" target="_blank">
+        View Transaction on Etherscan</a>`;
+            ttr.success(`Transaction Success. ${link}`, null, ttrOption);
+          }
+        );
+      });
     },
     unvote(option) {
       const self = this;
@@ -177,30 +176,19 @@ export default {
       }
 
       self.submitting = true;
-      contract.unvote.estimateGas(option, (err, data) => {
+      Utils.submitTx(contract, "unvote", [option], null, (err, data) => {
         if (err) {
           self.submitting = false;
           throw err;
         }
 
-        contract.unvote.sendTransaction(
-          option,
-          { gas: data, gasPrice: 30 * 1e9 },
-          (err, data) => {
-            if (err) {
-              self.submitting = false;
-              throw err;
-            }
+        self.submitting = false;
 
-            self.submitting = false;
-
-            const link = `<a class="btn btn-primary" href="${
-              self.store.etherScanRoot
-            }/tx/${data}" target="_blank">
+        const link = `<a class="btn btn-primary" href="${
+          self.store.etherScanRoot
+        }/tx/${data}" target="_blank">
         View Transaction on Etherscan</a>`;
-            ttr.success(`Transaction Success. ${link}`, null, ttrOption);
-          }
-        );
+        ttr.success(`Transaction Success. ${link}`, null, ttrOption);
       });
     },
     approve(option) {
@@ -211,30 +199,19 @@ export default {
       const contract = Contract.at(voting.address);
 
       self.submitting = true;
-      contract.approve.estimateGas(option, (err, data) => {
+      Utils.submitTx(contract, "approve", [option], null, (err, data) => {
         if (err) {
           self.submitting = false;
           throw err;
         }
 
-        contract.approve.sendTransaction(
-          option,
-          { gas: data, gasPrice: 30 * 1e9 },
-          (err, data) => {
-            if (err) {
-              self.submitting = false;
-              throw err;
-            }
+        self.submitting = false;
 
-            self.submitting = false;
-
-            const link = `<a class="btn btn-primary" href="${
-              self.store.etherScanRoot
-            }/tx/${data}" target="_blank">
+        const link = `<a class="btn btn-primary" href="${
+          self.store.etherScanRoot
+        }/tx/${data}" target="_blank">
         View Transaction on Etherscan</a>`;
-            ttr.success(`Transaction Success. ${link}`, null, ttrOption);
-          }
-        );
+        ttr.success(`Transaction Success. ${link}`, null, ttrOption);
       });
     },
     cancel(option) {
@@ -245,30 +222,19 @@ export default {
       const contract = Contract.at(voting.address);
 
       self.submitting = true;
-      contract.cancel.estimateGas(option, (err, data) => {
+      Utils.submitTx(contract, "cancel", [option], null, (err, data) => {
         if (err) {
           self.submitting = false;
           throw err;
         }
 
-        contract.cancel.sendTransaction(
-          option,
-          { gas: data, gasPrice: 30 * 1e9 },
-          (err, data) => {
-            if (err) {
-              self.submitting = false;
-              throw err;
-            }
+        self.submitting = false;
 
-            self.submitting = false;
-
-            const link = `<a class="btn btn-primary" href="${
-              self.store.etherScanRoot
-            }/tx/${data}" target="_blank">
+        const link = `<a class="btn btn-primary" href="${
+          self.store.etherScanRoot
+        }/tx/${data}" target="_blank">
         View Transaction on Etherscan</a>`;
-            ttr.success(`Transaction Success. ${link}`, null, ttrOption);
-          }
-        );
+        ttr.success(`Transaction Success. ${link}`, null, ttrOption);
       });
     },
     withdraw(option) {
@@ -279,30 +245,19 @@ export default {
       const contract = Contract.at(voting.address);
 
       self.submitting = true;
-      contract.withdraw.estimateGas(option, (err, data) => {
+      Utils.submitTx(contract, "withdraw", [option], null, (err, data) => {
         if (err) {
           self.submitting = false;
           throw err;
         }
 
-        contract.withdraw.sendTransaction(
-          option,
-          { gas: data, gasPrice: 30 * 1e9 },
-          (err, data) => {
-            if (err) {
-              self.submitting = false;
-              throw err;
-            }
+        self.submitting = false;
 
-            self.submitting = false;
-
-            const link = `<a class="btn btn-primary" href="${
-              self.store.etherScanRoot
-            }/tx/${data}" target="_blank">
+        const link = `<a class="btn btn-primary" href="${
+          self.store.etherScanRoot
+        }/tx/${data}" target="_blank">
         View Transaction on Etherscan</a>`;
-            ttr.success(`Transaction Success. ${link}`, null, ttrOption);
-          }
-        );
+        ttr.success(`Transaction Success. ${link}`, null, ttrOption);
       });
     }
   }
