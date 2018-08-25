@@ -2,22 +2,26 @@
   div
     h1.mb-3 Edit Voting
     .card
-      .card-header
-        h4 
-          router-link(:to="`/votings/${voting.address}`" class="d-block") {{voting.label}}    
+      .card-header.d-flex.justify-content-between
+        div
+          h4 
+            router-link(:to="`/votings/${voting.address}`" class="d-block") {{voting.label}}         
+        div.text-right
+          span.badge.badge-success.mr-2 deployed      
       .card-body
         p
-          strong Address:
-          i
-            a(:href='voting.addressUrl') {{voting.address}}
+          strong= 'Project Admin: '
+            a.small(:href="`${store.etherScanRoot}/address/${voting.creator}`") {{voting.creator}} 
+            | &nbsp;
+            span.badge.badge-info(v-if="voting.currentUserCreator") You    
           br
-          strong Creator:
-          i
-            a(:href='voting.creatorUrl') {{voting.creator}}
+          strong= 'Contract Address: '
+          small
+            a(:href="`${store.etherScanRoot}/address/${voting.address}`") {{voting.address}}
           br
-          strong Tx (deployed):
-          i
-            a(:href='voting.txUrl') {{voting.tx_hash}}
+          strong= 'Tx Hash: '
+          small
+            a(:href="`${store.etherScanRoot}/tx/${voting.tx_hash}`") {{voting.tx_hash}}    
         voting-form(      
           :csrf-token="csrfToken"
           :read-only-voting="voting"
@@ -71,8 +75,12 @@ export default {
           }
 
           voting.options = JSON.parse(voting.options);
-          voting.addressUrl = `${self.store.etherScanRoot}/address/${voting.address}`;
-          voting.creatorUrl = `${self.store.etherScanRoot}/address/${voting.creator}`;
+          voting.addressUrl = `${self.store.etherScanRoot}/address/${
+            voting.address
+          }`;
+          voting.creatorUrl = `${self.store.etherScanRoot}/address/${
+            voting.creator
+          }`;
           voting.txUrl = `${self.store.etherScanRoot}/tx/${voting.tx_hash}`;
           voting.currentUserCreator =
             web3.eth.defaultAccount &&

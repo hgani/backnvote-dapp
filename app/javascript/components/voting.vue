@@ -1,27 +1,30 @@
 <template lang="pug">
   .card.mb-3
+    modal-vote(:currentVote="currentVote" @ok="submitVote" @cancel="cancelVote")
     .card-header
       div.d-flex.justify-content-between
-        h4
-          router-link(:to="`/votings/${voting.address}`" class="d-block") {{voting.label}}
-        router-link(:to="`/votings/${voting.address}/edit`" class="d-block" v-if="voting.currentUserCreator") Edit     
+        div
+          h4 
+            router-link(:to="`/votings/${voting.address}`" class="d-block") {{voting.label}}
+          div
+            strong= 'Project Admin: '
+            a.small(:href="`${store.etherScanRoot}/address/${voting.creator}`") {{voting.creator}} 
+            | &nbsp;
+            span.badge.badge-info(v-if="voting.currentUserCreator") You
+        div.text-right
+          router-link(:to="`/votings/${voting.address}/edit`" class="d-block" v-if="voting.currentUserCreator") Edit  
+          div.mt-2
+            span.badge.badge-success.mr-2 deployed 
+            small(:class="{dropup: showInfo}")
+              a.dropdown-toggle.btn.btn-secondary.btn-sm(href="" @click.prevent="toggleInfo")  
       div(v-if="showInfo")
-        strong= 'Address: '
-        i
+        strong= 'Contract Address: '
+        small
           a(:href="`${store.etherScanRoot}/address/${voting.address}`") {{voting.address}}
         br
-        strong= 'Creator: '
-        i
-          a(:href="`${store.etherScanRoot}/address/${voting.creator}`") {{voting.creator}}
-        = ' '
-        span.badge.badge-info {{voting.currentUserCreator ? 'you' : ''}}
-        br
-        strong= 'Tx (deployed): '
-        i
-          a(:href="`${store.etherScanRoot}/tx/${voting.tx_hash}`") {{voting.tx_hash}}
-      div.text-right
+        strong= 'Tx Hash: '
         small
-          a(href="" @click.prevent="toggleInfo") {{ showInfo ? 'Hide Info' : 'Show Info' }}           
+          a(:href="`${store.etherScanRoot}/tx/${voting.tx_hash}`") {{voting.tx_hash}}        
     .card-body
       p(v-if="voting.currentUserCreator")
         strong Balance: &nbsp;
@@ -29,9 +32,7 @@
         br
         strong Minimum Fund: &nbsp;
         | {{voting.minimumFund / 1e18}} ETH
-      p
-        strong Description:
-        | &nbsp; {{voting.description || 'no description'}}
+      p {{voting.description || 'No Description'}}
     .card-footer.bg-white
         strong Options
         div.my-3.py-2.px-1(
@@ -75,7 +76,7 @@
                   :disabled="submitting || voting.optionApproves[index] === -1"
                 ) Cancel
           .mt-1(v-if="voting.optionVotes[index] && !voting.optionVotes[index].currentUserCancel && voting.optionVotes[index].currentUserFund")
-            small You've voted {{voting.optionVotes[index].currentUserFund / 1e18}} ETH
+            small You voted with {{voting.optionVotes[index].currentUserFund / 1e18}} ETH
             strong(v-if="voting.optionApproves[index] === -1") &nbsp; Option canceled. Please unvote to refund
             button.btn.btn-primary.btn-sm.ml-2(v-if="voting.optionApproves[index] !== 1" @click='unvote(index)' :disabled="submitting") Unvote
 </template>
@@ -99,7 +100,8 @@ export default {
     return {
       store,
       showInfo: false,
-      submitting: false
+      submitting: false,
+      currentVote: null
     };
   },
   methods: {
@@ -109,6 +111,19 @@ export default {
       self.showInfo = !self.showInfo;
     },
     vote(option) {
+      const self = this;
+
+      self.currentVote = {
+        option: option,
+        fund: (self.voting.minimumFund / 1e18).toFixed(3)
+      };
+    },
+    cancelVote() {
+      const self = this;
+
+      self.currentVote = null;
+    },
+    submitVote(vote) {
       const self = this;
       const voting = self.voting;
 
@@ -120,15 +135,7 @@ export default {
           throw err;
         }
 
-        let fund = prompt(
-          `Please enter amount of ETH (minimum ${voting.minimumFund /
-            1e18} ETH)`
-        );
-        if (fund === null) {
-          return;
-        } else {
-          fund = parseFloat(fund);
-        }
+        const fund = parseFloat(vote.fund);
 
         if (isNaN(fund) || fund * 1e18 < voting.minimumFund) {
           return ttr.error("Please enter valid fund");
@@ -138,7 +145,7 @@ export default {
         Utils.submitTx(
           contract,
           "vote",
-          [option],
+          [vote.option],
           { value: fund * 1e18 },
           (err, data) => {
             if (err) {

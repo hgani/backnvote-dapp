@@ -12,6 +12,7 @@ import SideMenu from '../components/side-menu';
 import App from '../components/app';
 import NotFound from '../components/not-found';
 import Voting from '../components/voting';
+import ModalVote from '../components/modal-vote';
 import VotingForm from '../components/voting-form';
 import Votings from '../components/votings';
 import VotingsShow from '../components/votings-show';
@@ -39,6 +40,7 @@ $(() => {
   Vue.component('top-menu', TopMenu);
   Vue.component('side-menu', SideMenu);
   Vue.component('voting', Voting);
+  Vue.component('modal-vote', ModalVote);
   Vue.component('voting-form', VotingForm);
 
   global.vm = new Vue({
