@@ -5935,8 +5935,8 @@ wbuf@^1.1.0, wbuf@^1.7.2:
     minimalistic-assert "^1.0.0"
 
 "web3-helper@https://github.com/agusputra/web3-helper":
-  version "1.7.0"
-  resolved "https://github.com/agusputra/web3-helper#2440a83cc2a130eb961243a6dc264e708e691936"
+  version "1.8.0"
+  resolved "https://github.com/agusputra/web3-helper#a35bfd00a82c43de6abb25697f1c01ead1d8dfa3"
 
 web3@^0.20.7:
   version "0.20.7"
