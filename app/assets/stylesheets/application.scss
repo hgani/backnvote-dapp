@@ -15,3 +15,10 @@
  */
 
 @import "bootstrap";
+.hide-after::after {
+  display: none
+}
+
+.font-sans-serif {
+  font-family: sans-serif;
+}

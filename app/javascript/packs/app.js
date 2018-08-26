@@ -18,7 +18,8 @@ import Votings from '../components/votings';
 import VotingsShow from '../components/votings-show';
 import VotingsNew from '../components/votings-new';
 import VotingsEdit from '../components/votings-edit';
-import User from '../components/user';
+import UserProjects from '../components/user-projects';
+import UserBackedProjects from '../components/user-backed-projects';
 
 global.web3Helper = web3Helper;
 
@@ -82,8 +83,12 @@ $(() => {
             }
           },
           {
-            path: 'users/:address',
-            component: User
+            path: 'users/:address/projects',
+            component: UserProjects
+          },
+          {
+            path: 'users/:address/backed-projects',
+            component: UserBackedProjects
           }
         ]
       }]

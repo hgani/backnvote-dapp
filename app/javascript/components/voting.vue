@@ -14,9 +14,10 @@
         div.text-right
           router-link(:to="`/votings/${voting.address}/edit`" class="d-block" v-if="voting.currentUserCreator") Edit  
           div.mt-2
-            span.badge.badge-success.mr-2 deployed 
+            span.badge.badge-success.mr-2(v-if="deployed" style="position: relative; top: -5px" title="Contract has been deployed to blockchain") deployed
+            span.badge.badge-warning.mr-2(v-if="!deployed" style="position: relative; top: -5px" title="Contract is being deployed to blockchain") deploying
             small(:class="{dropup: showInfo}")
-              a.dropdown-toggle.btn.btn-secondary.btn-sm(href="" @click.prevent="toggleInfo")  
+              a.dropdown-toggle.btn.btn-sm.btn-outline-secondary(href="" @click.prevent="toggleInfo")  
       div(v-if="showInfo")
         strong= 'Contract Address: '
         small
@@ -26,7 +27,7 @@
         small
           a(:href="`${store.etherScanRoot}/tx/${voting.tx_hash}`") {{voting.tx_hash}}        
     .card-body
-      p(v-if="voting.currentUserCreator")
+      //p(v-if="voting.currentUserCreator")
         strong Balance: &nbsp;
         | {{voting.balance / 1e18}} ETH
         br
@@ -35,14 +36,14 @@
       p {{voting.description || 'No Description'}}
     .card-footer.bg-white
         strong Options
-        div.my-3.py-2.px-1(
-          v-for="(option, index) in voting.options"
-        )
+        div.my-3.py-2.px-1(v-for="(option, index) in voting.options")
           .d-flex
             .d-flex.flex-grow-1.align-items-center.justify-content-center
               div.w-100
-                .d-block
-                  | {{option}}
+                .d-block.mb-1
+                  span.mr-2 {{option}}                 
+                  span.badge.badge-success(v-if='voting.optionApproves[index] === 1') Approved
+                  span.badge.badge-warning(v-if='voting.optionApproves[index] === -1') Canceled
                 .d-flex
                   .progress.flex-grow-1.w-100(style="height: 20px")
                     .progress-bar.bg-success(:style="{width: `${voting.optionFunds[index] ? ((voting.optionFunds[index] / voting.balance) * 100) : 1}%`}")
@@ -53,28 +54,31 @@
                     | {{(voting.optionVotes[index] && voting.optionVotes[index].validCount) ? `(${voting.optionVotes[index].validCount} backers)` : ''}}                    
             .d-flex.align-items-center.justify-content-end
               div.text-right.pl-2.mt-2
-                span.badge.badge-info.mr-1(v-if='voting.optionApproves[index] === 1') Approved
-                span.badge.badge-warning.mr-1(v-if='voting.optionApproves[index] === -1') Canceled
                 button.btn.btn-primary.mr-1(
                   v-if="!voting.currentUserCreator && voting.optionApproves[index] !== -1"
                   @click='vote(index)'
                   :disabled="submitting"
                 ) Vote
                 button.btn.btn-primary.mr-1(
-                  v-if="voting.currentUserCreator"
+                  v-if="voting.currentUserCreator && (voting.optionApproves[index] !== 1)"
                   @click='approve(index)'
-                  :disabled="submitting || voting.optionApproves[index] === 1"
+                  :disabled="submitting"
                 ) Approve
                 button.btn.btn-primary.mr-1(
-                  v-if="voting.currentUserCreator"
+                  v-if="voting.currentUserCreator && voting.optionApproves[index] === 1"
                   @click='withdraw(index)'
-                  :disabled="submitting || voting.optionApproves[index] !== 1"
+                  :disabled="submitting"
                 ) Withdraw
-                button.btn.btn-primary(
-                  v-if="voting.currentUserCreator"
-                  @click='cancel(index)'
-                  :disabled="submitting || voting.optionApproves[index] === -1"
-                ) Cancel
+                .dropdown.d-inline-block
+                  button.btn.btn-secondary.dropdown-toggle.hide-after.font-sans-serif(data-toggle="dropdown")
+                    span ⚙
+                  .dropdown-menu
+                    button.btn.btn-primary.dropdown-item(
+                      v-if="voting.currentUserCreator && voting.optionApproves[index] !== -1"
+                      @click='cancel(index)'
+                      :disabled="submitting"
+                    ) Cancel
+                </div>                
           .mt-1(v-if="voting.optionVotes[index] && !voting.optionVotes[index].currentUserCancel && voting.optionVotes[index].currentUserFund")
             small You voted with {{voting.optionVotes[index].currentUserFund / 1e18}} ETH
             strong(v-if="voting.optionApproves[index] === -1") &nbsp; Option canceled. Please unvote to refund
@@ -103,6 +107,12 @@ export default {
       submitting: false,
       currentVote: null
     };
+  },
+  computed: {
+    deployed() {
+      const self = this;
+      return self.voting.address && self.voting.address !== Utils.emptyAddress;
+    }
   },
   methods: {
     toggleInfo() {
@@ -270,4 +280,3 @@ export default {
   }
 };
 </script>
-

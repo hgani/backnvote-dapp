@@ -1,7 +1,21 @@
 class VotingsController < ApplicationController
   def index
     network = VotingContract.networks[params[:network]]
-    votings = VotingContract.where(network: network).where.not(address: nil).order(created_at: :desc)
+    creator = params[:creator]
+    status = params[:status]
+    
+    votings = VotingContract.where(network: network)
+    
+    if creator.present?
+      votings = votings.where(creator: creator)
+    end
+
+    unless status.present? || status == 'all'
+      votings = votings.where.not(address: nil)
+    end
+
+    votings = votings.order(created_at: :desc)
+
     respond_to do |format|
       format.json do
         render(json: { votings: votings, pagination: {} })

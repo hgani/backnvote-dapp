@@ -1,7 +1,7 @@
 <template lang='pug'>
   nav.navbar.navbar-expand-lg.navbar-light.bg-light
     .container
-      a.navbar-brand(href='/')  Voting App
+      a.navbar-brand(href='/')  Back and Vote
       button.navbar-toggler(aria-controls='navbarSupportedContent', aria-expanded='false', aria-label='Toggle navigation', data-target='#navbarSupportedContent', data-toggle='collapse', type='button')
         span.navbar-toggler-icon
       #navbarSupportedContent.collapse.navbar-collapse

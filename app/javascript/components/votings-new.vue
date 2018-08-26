@@ -92,11 +92,14 @@ export default {
                   success() {
                     self.submitting = false;
                     self.resetVoting();
+
                     ttr.success(
                       "Your contract has been saved",
                       null,
                       ttrOption
                     );
+
+                    self.$router.push(`/users/${creator}/projects`);
                   },
                   error() {
                     self.submitting = false;

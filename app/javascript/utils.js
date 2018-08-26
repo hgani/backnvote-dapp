@@ -1,6 +1,7 @@
 import web3Helper from 'web3-helper';
 
 export default {
+  emptyAddress: '0x0000000000000000000000000000000000000000',
   validateVotingForm(voting, cb) {
     this.ensureLogin((err) => {
       if (err) {
@@ -8,12 +9,12 @@ export default {
       }
 
       if (!voting.label) {
-        return ttr.error("Please enter valid label");
+        return ttr.error("Please enter valid question");
       }
 
       for (const item of voting.options) {
         if (!item) {
-          return ttr.error("Please enter valid option")
+          return ttr.error("Please enter valid choice")
         };
       }
 
