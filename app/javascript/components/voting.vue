@@ -69,14 +69,13 @@
                   @click='withdraw(index)'
                   :disabled="submitting"
                 ) Withdraw
-                .dropdown.d-inline-block
+                .dropdown.d-inline-block(v-if="voting.currentUserCreator")
                   button.btn.btn-secondary.dropdown-toggle.hide-after.font-sans-serif(data-toggle="dropdown")
                     span ⚙
                   .dropdown-menu
                     button.btn.btn-primary.dropdown-item(
-                      v-if="voting.currentUserCreator && voting.optionApproves[index] !== -1"
                       @click='cancel(index)'
-                      :disabled="submitting"
+                      :disabled="submitting || voting.optionApproves[index] === -1"
                     ) Cancel
                 </div>                
           .mt-1(v-if="voting.optionVotes[index] && !voting.optionVotes[index].currentUserCancel && voting.optionVotes[index].currentUserFund")
