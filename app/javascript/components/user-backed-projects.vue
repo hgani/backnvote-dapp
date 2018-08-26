@@ -1,46 +1,17 @@
 <template lang="pug">
   div
-    h1.mb-3 User Stats
-    p User Address: {{address}}
-    ul.nav.nav-tabs
-      li.nav-item
-        a.nav-link.active(data-toggle="tab" href="#votings") Votings
-      li.nav-item
-        a.nav-link(data-toggle='tab' href='#votes') Votes
-    .tab-content.pt-3
-      #votings.tab-pane.fade.show.active
-        table.table
-          thead
-            tr
-              th Voting label 
-              th Voting address
-            template(v-for="voting in votings")
-              tr(v-if="voting.userCreator")
-                td {{voting.label}}
-                td 
-                  small 
-                    router-link(:to="`/votings/${voting.address}`") {{voting.address}}   
-        ajax-status(:loading="loadingVotings" :no-data="noVotingCreated")
-          | There is no voting created by this user                           
-      #votes.tab-pane.fade 
-        table.table
-          thead
-            tr
-              th Voting label 
-              th Voting address
-              th Option label
-              th Fund
-            template(v-for="voting in votings")
-              template(v-for="option in voting.options")
-                tr(v-if="option.selected && !option.cancel")
-                  td {{option.votingLabel}}
-                  td 
-                    small 
-                      router-link(:to="`/votings/${option.votingAddress}`") {{option.votingAddress}}
-                  td {{option.label}}
-                  td {{option.fund / 1e18}} ETH
-        ajax-status(:loading="loadingVotings" :no-data="noActiveVotes")
-          | There is no active votes                   
+    .card.mb-3(v-for="voting in votings" v-if="!noActiveVotes")
+      .card-body
+        h4 
+          router-link(:to="`/votings/${voting.address}`" class="d-block") {{voting.label}}
+        p 
+          strong {{ currentUser ? 'Your Vote(s):' : 'Vote(s):' }}
+        template(v-for="option in voting.options")      
+          p.ml-3(v-if="option.fund") {{option.label}} ({{option.fund / 1e18}} ETH)        
+
+    ajax-status(:loading="loadingVotings" :no-data="noActiveVotes")
+      p(v-if="currentUser") You haven't backed any project. To back a project, click "Vote" on any of the <i>targets</i> listed on the project.
+      p(v-if="!currentUser") This user hasn't backed any project.
 </template>
 
 <script>
@@ -49,11 +20,16 @@ import votingContract from "../voting-contract";
 export default {
   data() {
     return {
+      address: null,
       votings: [],
-      noVotingCreated: true,
       noActiveVotes: true,
       loadingVotings: true
     };
+  },
+  computed: {
+    currentUser() {
+      return this.address === web3.eth.defaultAccount;
+    }
   },
   created() {
     const self = this;
@@ -70,16 +46,10 @@ export default {
         url: "votings.json",
         data: { network: net },
         success(data) {
-          const votings = [];
-
           for (const voting of data.votings) {
             voting.userCreator =
               voting.creator.toLowerCase() === self.address.toLowerCase();
             voting.options = JSON.parse(voting.options);
-
-            if (voting.userCreator) {
-              self.noVotingCreated = false;
-            }
 
             if (voting.options && voting.options.length) {
               voting.options = _.map(voting.options, (value, index) => ({
@@ -114,10 +84,9 @@ export default {
               }
             }
 
-            votings.push(voting);
+            self.votings.push(voting);
           }
 
-          self.votings = votings;
           self.loadingVotings = false;
         }
       });
@@ -125,4 +94,3 @@ export default {
   }
 };
 </script>
-
