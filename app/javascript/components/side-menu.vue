@@ -6,7 +6,7 @@
 
     ul.list-group.my-3(v-if="address")
       router-link(:to="`/users/${address}/projects`" class="list-group-item list-group-item-action") My Projects
-      router-link(:to="`/users/${address}/backed-projects`" class="list-group-item list-group-item-action") Backed Projects        
+      router-link(:to="`/users/${address}/backed_projects`" class="list-group-item list-group-item-action") Backed Projects        
 
     wallet-info.mt-3        
 </template>

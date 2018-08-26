@@ -94,7 +94,7 @@ $(() => {
           },
           {
             name: 'userBackedProjects',
-            path: 'users/:address/backed-projects',
+            path: 'users/:address/backed_projects',
             component: UserBackedProjects
           }
         ]
