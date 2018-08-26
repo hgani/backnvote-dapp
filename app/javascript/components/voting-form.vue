@@ -13,15 +13,15 @@
       label More Details
       textarea.form-control(v-model="voting.description" placeholder="E.g. links to relevant group chat or announcement")
     .form-group(v-for="(item, index) in voting.options")
-      label Choice {{index + 1}}
+      label Target {{index + 1}}
       input.form-control(v-model="voting.options[index]")
     .form-group.text-center(v-if="!editMode")
-      button.btn.btn-secondary(@click='addOption') Add Choice
+      button.btn.btn-secondary(@click='addOption') Add Target
       | &nbsp;
       button.btn.btn-secondary(
         :disabled="voting.options.length === voting.minimumOptionsLength"
         @click='removeOption'
-        ) Remove Choice
+        ) Remove Target
     .form-group
       button.btn.btn-primary(@click="submit" :disabled="submitting") 
         | {{ editMode ? 'Submit' : 'Create Project' }}

@@ -49,6 +49,7 @@ $(() => {
   global.vm = new Vue({
     el: '#vueRoot',
     router: new VueRouter({
+      linkExactActiveClass: 'active',
       routes: [{
         path: '/',
         component: web3 ? App : NoMetaMask,
@@ -63,6 +64,7 @@ $(() => {
             component: NotFound
           },
           {
+            name: 'votings',
             path: 'votings',
             component: Votings
           },
@@ -71,6 +73,7 @@ $(() => {
             component: VotingsShow
           },
           {
+            name: 'votingsNew',
             path: 'votings/new',
             component: VotingsNew,
             props: {
@@ -85,10 +88,12 @@ $(() => {
             }
           },
           {
+            name: 'userProjects',
             path: 'users/:address/projects',
             component: UserProjects
           },
           {
+            name: 'userBackedProjects',
             path: 'users/:address/backed-projects',
             component: UserBackedProjects
           }

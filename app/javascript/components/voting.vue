@@ -43,7 +43,7 @@
     .card-body
       p {{voting.description || 'No Description'}}
     .card-footer.bg-white
-        strong Options
+        strong Targets
         div.my-3.py-2.px-1(v-for="(option, index) in voting.options")
           .d-flex
             .d-flex.flex-grow-1.align-items-center.justify-content-center

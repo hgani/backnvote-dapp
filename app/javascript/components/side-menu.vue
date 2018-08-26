@@ -1,16 +1,12 @@
 <template lang='pug'>
   div
     ul.list-group
-      li.list-group-item
-        router-link(to='/votings', class='d-block') Find Projects
-      li.list-group-item
-        router-link(to='/votings/new', class='d-block') Create Project    
-          
+      router-link(to='/votings' class="list-group-item list-group-item-action") Find Projects
+      router-link(to='/votings/new' class="list-group-item list-group-item-action") Create Project    
+
     ul.list-group.my-3(v-if="address")
-      li.list-group-item(v-if="address")
-        router-link(:to="`/users/${address}/projects`", class='d-block') My Projects
-      li.list-group-item(v-if="address")
-        router-link(:to="`/users/${address}/backed-projects`", class='d-block') Backed Projects
+      router-link(:to="`/users/${address}/projects`" class="list-group-item list-group-item-action") My Projects
+      router-link(:to="`/users/${address}/backed-projects`" class="list-group-item list-group-item-action") Backed Projects        
 
     wallet-info.mt-3        
 </template>
