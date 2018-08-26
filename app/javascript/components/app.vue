@@ -24,7 +24,7 @@ export default {
       alert("Please install MetaMask");
     }
 
-    if (!web3.eth.defaultAccount) {
+    if (web3.currentProvider.isMetaMask && !web3.eth.defaultAccount) {
       alert("Please login to Metamask");
     }
 
