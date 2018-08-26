@@ -48,10 +48,16 @@ export default {
     })
   },
   ensureLogin(cb) {
-    if (!web3.eth.defaultAccount) {
-      alert("Please login to MetaMask");
+    if (!web3.currentProvider.isMetaMask) {
+      alert("Please install MetaMask");
+      return cb('No Metamask');
+    }
+
+    if (web3.currentProvider.isMetaMask && !web3.eth.defaultAccount) {
+      alert("Please login to Metamask");
       return cb('Metamask has no default account');
     }
+
     return cb();
   }
 }

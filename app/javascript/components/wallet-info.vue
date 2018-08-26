@@ -1,6 +1,6 @@
 <template lang='pug'>
   .div
-    div.p-2.text-secondary(v-if="!address" href="javascript:void(0)") 
+    .alert.alert-warning.mt-4(v-if="!address" href="javascript:void(0)") 
       | Please log in to Metamask to use this dApp
     div(v-if="address")
       div
