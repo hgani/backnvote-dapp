@@ -9,7 +9,7 @@
           //- li.nav-item
             a.nav-link(href='#') Link
           li.nav-item
-           span Network: {{store.network}}
+           span Network: {{store.network || 'loading...'}}
 </template>
 
 <script>

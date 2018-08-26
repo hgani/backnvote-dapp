@@ -1,7 +1,15 @@
 import web3Helper from 'web3-helper';
 
+const infuraNodes = {
+  mainnet: 'https://mainnet.infura.io/v3',
+  ropsten: 'https://ropsten.infura.io/v3',
+  kovan: 'https://kovan.infura.io/v3',
+  rinkeby: 'https://rinkeby.infura.io/v3'
+}
+
 export default {
   emptyAddress: '0x0000000000000000000000000000000000000000',
+  infuraNodes,
   validateVotingForm(voting, cb) {
     this.ensureLogin((err) => {
       if (err) {

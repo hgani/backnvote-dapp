@@ -20,17 +20,13 @@ export default {
   created: function() {
     const self = this;
 
-    web3Helper.onCheckInstall(() => {
-      if (!web3Helper.metamaskInstalled()) {
-        alert("Please install MetaMask");
-      }
-    });
+    if (!web3.currentProvider.isMetaMask) {
+      alert("Please install MetaMask");
+    }
 
-    web3Helper.onCheckLogin(() => {
-      if (!web3Helper.metamaskLogin()) {
-        alert("Please login to MetaMask");
-      }
-    });
+    if (!web3.eth.defaultAccount) {
+      alert("Please login to Metamask");
+    }
 
     $(document).ajaxStart(() => self.$Progress.start());
     $(document).ajaxStop(() => self.$Progress.finish());
