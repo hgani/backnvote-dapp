@@ -1,6 +1,20 @@
 <template lang="pug">
   .card.mb-3
-    modal-vote(:currentVote="currentVote" @ok="submitVote" @cancel="cancelVote")
+    confirm-vote(:confirm="confirm.vote" :fund="voteFund" @ok="vote" @cancel="confirm.vote = false")
+    
+    confirm(id="approveConfirm" :confirm="confirm.approve" @ok="approve" @cancel="confirm.approve = false")
+      p Approving this Target indicates that you're committed to delivering it. 
+      p If you are unable to deliver it, you can <i>cancel</i> the Target in which case the fund will be returned to the voters.
+      p Proceed?
+
+    confirm(id="cancelConfirm" :confirm="confirm.cancel" @ok="cancel" @cancel="confirm.cancel = false")
+      p This Target will be closed and the fund will be returned to the voters.
+      p Proceed?    
+
+    confirm(id="withdrawConfirm" :confirm="confirm.withdraw" @ok="withdraw" @cancel="confirm.withdraw = false")
+      p Use <i>withdraw</i> only when the Target has been completed (or almost). You can't <i>cancel</i> a Target once it has been withdrawn.
+      p Proceed?
+
     .card-header
       div.d-flex.justify-content-between
         div
@@ -27,12 +41,6 @@
         small
           a(:href="`${store.etherScanRoot}/tx/${voting.tx_hash}`") {{voting.tx_hash}}        
     .card-body
-      //p(v-if="voting.currentUserCreator")
-        strong Balance: &nbsp;
-        | {{voting.balance / 1e18}} ETH
-        br
-        strong Minimum Fund: &nbsp;
-        | {{voting.minimumFund / 1e18}} ETH
       p {{voting.description || 'No Description'}}
     .card-footer.bg-white
         strong Options
@@ -56,17 +64,17 @@
               div.text-right.pl-2.mt-2
                 button.btn.btn-primary.mr-1(
                   v-if="!voting.currentUserCreator && voting.optionApproves[index] !== -1"
-                  @click='vote(index)'
+                  @click="showConfirm('vote', index)"
                   :disabled="submitting"
                 ) Vote
                 button.btn.btn-primary.mr-1(
-                  v-if="voting.currentUserCreator && (voting.optionApproves[index] !== 1)"
-                  @click='approve(index)'
+                  v-if="voting.currentUserCreator && voting.optionApproves[index] !== 1"
+                  @click="showConfirm('approve', index)"
                   :disabled="submitting"
                 ) Approve
                 button.btn.btn-primary.mr-1(
                   v-if="voting.currentUserCreator && voting.optionApproves[index] === 1"
-                  @click='withdraw(index)'
+                  @click="showConfirm('withdraw', index)"
                   :disabled="submitting"
                 ) Withdraw
                 .dropdown.d-inline-block(v-if="voting.currentUserCreator")
@@ -74,7 +82,7 @@
                     span ⚙
                   .dropdown-menu
                     button.btn.btn-primary.dropdown-item(
-                      @click='cancel(index)'
+                      @click="showConfirm('cancel', index)"
                       :disabled="submitting || voting.optionApproves[index] === -1"
                     ) Cancel
                 </div>                
@@ -104,7 +112,14 @@ export default {
       store,
       showInfo: false,
       submitting: false,
-      currentVote: null
+      voteFund: 0,
+      confirm: {
+        vote: false,
+        approve: false,
+        cancel: false,
+        withdraw: false
+      },
+      option: -1
     };
   },
   computed: {
@@ -119,20 +134,14 @@ export default {
 
       self.showInfo = !self.showInfo;
     },
-    vote(option) {
+    showConfirm(name, option) {
       const self = this;
 
-      self.currentVote = {
-        option: option,
-        fund: (self.voting.minimumFund / 1e18).toFixed(3)
-      };
+      self.confirm[name] = true;
+      self.option = option;
+      self.voteFund = (self.voting.minimumFund / 1e18).toFixed(3);
     },
-    cancelVote() {
-      const self = this;
-
-      self.currentVote = null;
-    },
-    submitVote(vote) {
+    vote(fund) {
       const self = this;
       const voting = self.voting;
 
@@ -144,8 +153,6 @@ export default {
           throw err;
         }
 
-        const fund = parseFloat(vote.fund);
-
         if (isNaN(fund) || fund * 1e18 < voting.minimumFund) {
           return ttr.error("Please enter valid fund");
         }
@@ -154,7 +161,7 @@ export default {
         Utils.submitTx(
           contract,
           "vote",
-          [vote.option],
+          [self.option],
           { value: fund * 1e18 },
           (err, data) => {
             if (err) {
@@ -207,7 +214,7 @@ export default {
         ttr.success(`Transaction Success. ${link}`, null, ttrOption);
       });
     },
-    approve(option) {
+    approve() {
       const self = this;
 
       const voting = self.voting;
@@ -215,7 +222,7 @@ export default {
       const contract = Contract.at(voting.address);
 
       self.submitting = true;
-      Utils.submitTx(contract, "approve", [option], null, (err, data) => {
+      Utils.submitTx(contract, "approve", [self.option], null, (err, data) => {
         if (err) {
           self.submitting = false;
           throw err;
@@ -230,7 +237,7 @@ export default {
         ttr.success(`Transaction Success. ${link}`, null, ttrOption);
       });
     },
-    cancel(option) {
+    cancel() {
       const self = this;
 
       const voting = self.voting;
@@ -238,7 +245,7 @@ export default {
       const contract = Contract.at(voting.address);
 
       self.submitting = true;
-      Utils.submitTx(contract, "cancel", [option], null, (err, data) => {
+      Utils.submitTx(contract, "cancel", [self.option], null, (err, data) => {
         if (err) {
           self.submitting = false;
           throw err;
@@ -253,7 +260,7 @@ export default {
         ttr.success(`Transaction Success. ${link}`, null, ttrOption);
       });
     },
-    withdraw(option) {
+    withdraw() {
       const self = this;
 
       const voting = self.voting;
@@ -261,7 +268,7 @@ export default {
       const contract = Contract.at(voting.address);
 
       self.submitting = true;
-      Utils.submitTx(contract, "withdraw", [option], null, (err, data) => {
+      Utils.submitTx(contract, "withdraw", [self.option], null, (err, data) => {
         if (err) {
           self.submitting = false;
           throw err;

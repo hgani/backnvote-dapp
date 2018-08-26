@@ -4,6 +4,7 @@ import VueRouter from 'vue-router';
 import web3Helper from 'web3-helper';
 
 import VueProgressBar from 'vue-progressbar';
+import Confirm from '../components/confirm';
 import AjaxStatus from '../components/ajax-status';
 import WalletInfo from '../components/wallet-info';
 import NoMetaMask from '../components/no-metamask';
@@ -12,7 +13,7 @@ import SideMenu from '../components/side-menu';
 import App from '../components/app';
 import NotFound from '../components/not-found';
 import Voting from '../components/voting';
-import ModalVote from '../components/modal-vote';
+import ConfirmVote from '../components/voting/confirm-vote';
 import VotingForm from '../components/voting-form';
 import Votings from '../components/votings';
 import VotingsShow from '../components/votings-show';
@@ -37,11 +38,12 @@ $(() => {
 
   // register components
   Vue.component('ajax-status', AjaxStatus);
+  Vue.component('confirm', Confirm);
   Vue.component('wallet-info', WalletInfo);
   Vue.component('top-menu', TopMenu);
   Vue.component('side-menu', SideMenu);
   Vue.component('voting', Voting);
-  Vue.component('modal-vote', ModalVote);
+  Vue.component('confirm-vote', ConfirmVote);
   Vue.component('voting-form', VotingForm);
 
   global.vm = new Vue({

@@ -1,12 +1,12 @@
 <template lang='pug'>
-  .modal#voteModal.fade
+  .modal(:id="id").fade
     .modal-dialog
       .modal-content
         .modal-body
           p
             | If this Target gets approved by the Project admin, the admin will be able to withdraw your ETH to fund the project. Please do your due diligence to make sure the admin can be trusted. 
           .form-group
-            input.form-control(type="number" step="0.001" v-model="voteLocal.fund")
+            input.form-control(type="number" step="0.01" v-model.number="fundLocal")
           p
             | You can cancel your vote and get your ETH back prior to approval.
         .modal-footer
@@ -15,11 +15,13 @@
 </template>
 
 <script>
+const modalId = "voteModal";
 export default {
-  props: ["currentVote"],
+  props: ["confirm", "fund"],
   data() {
     return {
-      voteLocal: {},
+      id: "voteModal",
+      fundLocal: 0,
       submitting: true
     };
   },
@@ -27,15 +29,15 @@ export default {
     const self = this;
 
     // Why use document? See this: https://github.com/twbs/bootstrap/issues/26817
-    $(document).on("hidden.bs.modal", "#voteModal", e => self.$emit("cancel"));
+    $(document).on("hidden.bs.modal", `#${self.id}`, e => self.$emit("cancel"));
   },
   watch: {
-    currentVote(value) {
+    confirm(value) {
       const self = this;
 
       if (value) {
-        self.voteLocal = _.cloneDeep(value);
-        $("#voteModal").modal("show");
+        self.fundLocal = self.fund;
+        $(`#${self.id}`).modal("show");
       }
     }
   },
@@ -43,8 +45,8 @@ export default {
     submit() {
       const self = this;
 
-      $("#voteModal").modal("hide");
-      self.$emit("ok", self.voteLocal);
+      $(`#${self.id}`).modal("hide");
+      self.$emit("ok", self.fundLocal);
     },
     cancel() {
       const self = this;
