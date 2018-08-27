@@ -38,6 +38,10 @@ export default {
 
     const creator = route.params.address;
 
+    if (!self.currentUser(creator)) {
+      self.$router.push("/votings");
+    }
+
     web3Helper.getNetwork((err, net) => {
       if (err) throw err;
 
@@ -57,10 +61,7 @@ export default {
             voting.optionVotes = [];
             voting.optionApproves = [];
             voting.optionFunds = [];
-            voting.currentUserCreator =
-              web3.eth.defaultAccount &&
-              web3.eth.defaultAccount.toLowerCase() ===
-                voting.creator.toLowerCase();
+            voting.currentUserCreator = self.currentUser(voting.creator);
 
             const contract = Contract.at(voting.address);
 
@@ -114,6 +115,13 @@ export default {
     });
   },
   methods: {
+    currentUser(address) {
+      address = "" + address;
+      return (
+        web3.eth.defaultAccount &&
+        web3.eth.defaultAccount.toLowerCase() === address.toLowerCase()
+      );
+    },
     getOptionVotes() {
       const self = this;
 
@@ -142,12 +150,7 @@ export default {
                 value.fund = parseInt(data[1][i]);
                 value.isCancel = data[2][i];
 
-                isCurrentUser =
-                  web3.eth.defaultAccount &&
-                  web3.eth.defaultAccount.toLowerCase() ===
-                    value.voter.toLowerCase();
-
-                if (isCurrentUser) {
+                if (self.currentUser(value.voter)) {
                   votes.currentUserFund = value.fund;
                   votes.currentUserCancel = value.isCancel;
                 }
