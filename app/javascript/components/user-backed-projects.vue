@@ -1,6 +1,6 @@
 <template lang="pug">
-  div
-    .card.mb-3(v-for="voting in votings" v-if="!noActiveVotes")
+  div(v-if="!noActiveVotes")
+    .card.mb-3(v-for="voting in votings" v-if="voting.currentUserVotes")
       .card-body
         h4 
           router-link(:to="`/votings/${voting.address}`" class="d-block") {{voting.label}}
@@ -47,6 +47,7 @@ export default {
         data: { network: net },
         success(data) {
           for (const voting of data.votings) {
+            voting.currentUserVotes = false;
             voting.userCreator =
               voting.creator.toLowerCase() === self.address.toLowerCase();
             voting.options = JSON.parse(voting.options);
@@ -74,6 +75,7 @@ export default {
                       option.cancel = data[2];
 
                       if (option.selected && !option.cancel) {
+                        voting.currentUserVotes = true;
                         self.noActiveVotes = false;
                       }
 
