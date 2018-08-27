@@ -9,7 +9,7 @@ import UserBackedProjects from './components/user-backed-projects';
 
 export default function () {
   const csrfToken = $("meta[name=csrf-token]").attr("content");
-  
+
   return {
     linkExactActiveClass: 'active',
     routes: [{
@@ -17,6 +17,7 @@ export default function () {
       component: App,
       children: [{
           path: '',
+          redirect: 'votings',
           component: {
             template: '<div class="h1 jumbotron text-center">Voting App</div>'
           }
