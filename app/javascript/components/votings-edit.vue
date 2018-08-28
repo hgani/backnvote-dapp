@@ -1,6 +1,5 @@
 <template lang='pug'>
   div
-    h1.mb-3 Edit Voting
     .card
       .card-header.d-flex.justify-content-between
         div

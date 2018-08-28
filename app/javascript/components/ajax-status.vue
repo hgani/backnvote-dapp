@@ -1,13 +1,16 @@
 <template lang='pug'>
   div
-    p(v-if="loading")
-      | Loading...
-    p(v-if="!loading && noData")
+    div(v-if="loading")
+      p Loading...
+    div(v-if="!loading && hasData")
       slot
+    div(v-if="!loading && !hasData")
+      slot(name="noData")
+        p There is no data
 </template>
 
 <script>
 export default {
-  props: ['loading', 'noData', 'noDataMessage']
+  props: ["loading", "hasData", "noData"]
 };
 </script>

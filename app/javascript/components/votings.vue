@@ -1,7 +1,7 @@
 <template lang='pug'>
   div
-    h1 Votings
-    ajax-status(:loading="loadingVotings" :no-data="noVotings")    
+    h1 Projects
+    ajax-status(:loading="loadingVotings" :has-data="votings.length")    
       div(v-for="(voting, index) in votings")
         voting(:voting="voting")
 </template>
@@ -25,8 +25,7 @@ export default {
       store,
       network: store.web3,
       votings: [],
-      loadingVotings: true,
-      noVotings: true
+      loadingVotings: true
     };
   },
   created() {
@@ -98,7 +97,6 @@ export default {
 
           self.votings = data.votings;
           self.getOptionVotes();
-          self.noVotings = data.votings.length;
           self.loadingVotings = false;
         },
         error() {}

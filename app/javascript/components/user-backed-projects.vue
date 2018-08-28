@@ -1,17 +1,18 @@
 <template lang="pug">
-  div(v-if="!noActiveVotes")
-    .card.mb-3(v-for="voting in votings" v-if="voting.currentUserVotes")
+  div
+    .card.mb-3(v-for="voting in votings" v-if="hasVote")
       .card-body
         h4 
           router-link(:to="`/votings/${voting.address}`" class="d-block") {{voting.label}}
         p 
           strong {{ currentUser ? 'Your Vote(s):' : 'Vote(s):' }}
         template(v-for="option in voting.options")      
-          p.ml-3(v-if="option.fund") {{option.label}} ({{option.fund / 1e18}} ETH)        
+          p.ml-3(v-if="option.fund") {{option.label}} ({{option.fund / 1e18}} ETH)            
 
-    ajax-status(:loading="loadingVotings" :no-data="noActiveVotes")
-      p(v-if="currentUser") You haven't backed any project. To back a project, click "Vote" on any of the <i>targets</i> listed on the project.
-      p(v-if="!currentUser") This user hasn't backed any project.
+    ajax-status(:loading="loadingVotes" :has-data="hasVote")
+      div(slot="noData")
+        p(v-if="currentUser") You haven't backed any project. To back a project, click "Vote" on any of the <i>targets</i> listed on the project.
+        p(v-if="!currentUser") This user hasn't backed any project.
 </template>
 
 <script>
@@ -22,8 +23,8 @@ export default {
     return {
       address: null,
       votings: [],
-      noActiveVotes: true,
-      loadingVotings: true
+      loadingVotes: true,
+      hasVote: false
     };
   },
   computed: {
@@ -46,6 +47,11 @@ export default {
         url: "votings.json",
         data: { network: net },
         success(data) {
+          if (!data.votings.length) {
+            self.loadingVotes = false;
+          }
+
+          let max = 0;
           for (const voting of data.votings) {
             voting.currentUserVotes = false;
             voting.userCreator =
@@ -62,6 +68,7 @@ export default {
               const contract = Contract.at(voting.address);
 
               for (let option of voting.options) {
+                max++;
                 (option => {
                   contract.allVotes.call(
                     option.key,
@@ -76,10 +83,12 @@ export default {
 
                       if (option.selected && !option.cancel) {
                         voting.currentUserVotes = true;
-                        self.noActiveVotes = false;
+                        self.hasVote = true;
                       }
 
-                      self.$forceUpdate();
+                      if (--max === 0) {
+                        self.loadingVotes = false;
+                      }
                     }
                   );
                 })(option);
@@ -88,8 +97,6 @@ export default {
 
             self.votings.push(voting);
           }
-
-          self.loadingVotings = false;
         }
       });
     });
