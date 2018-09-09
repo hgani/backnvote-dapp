@@ -17,6 +17,7 @@
 
 <script>
 import votingContract from "../voting-contract";
+import utils from "../utils";
 
 export default {
   data() {
@@ -29,7 +30,7 @@ export default {
   },
   computed: {
     currentUser() {
-      return this.address === web3.eth.defaultAccount;
+      return utils.currentUser(this.address);
     }
   },
   created() {

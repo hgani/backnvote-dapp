@@ -52,43 +52,42 @@ export default {
       submitting: false
     };
   },
-  created() {
-    const self = this;
+  beforeRouteEnter(to, from, next) {
+    next(self => {
+      const Contract = web3.eth.contract(votingContract.ABI);
+      const address = to.params.address;
 
-    const Contract = web3.eth.contract(votingContract.ABI);
-    const route = self.$router.currentRoute;
+      web3Helper.getNetwork((err, net) => {
+        if (err) throw err;
 
-    const address = route.params.address;
+        $.ajax({
+          url: `votings/${address}.json`,
+          data: { network: net },
+          success(data) {
+            const voting = data.voting;
 
-    web3Helper.getNetwork((err, net) => {
-      if (err) throw err;
+            if (!voting) {
+              return self.$router.push("/not-found");
+            }
 
-      $.ajax({
-        url: `votings/${address}.json`,
-        data: { network: net },
-        success(data) {
-          const voting = data.voting;
+            if (!Utils.currentUser(voting.creator)) {
+              return self.$router.push("/votings");
+            }
 
-          if (!voting) {
-            return self.$router.push("/not-found");
-          }
+            voting.options = JSON.parse(voting.options);
+            voting.addressUrl = `${self.store.etherScanRoot}/address/${
+              voting.address
+            }`;
+            voting.creatorUrl = `${self.store.etherScanRoot}/address/${
+              voting.creator
+            }`;
+            voting.txUrl = `${self.store.etherScanRoot}/tx/${voting.tx_hash}`;
+            voting.currentUserCreator = Utils.currentUser(voting.creator);
 
-          voting.options = JSON.parse(voting.options);
-          voting.addressUrl = `${self.store.etherScanRoot}/address/${
-            voting.address
-          }`;
-          voting.creatorUrl = `${self.store.etherScanRoot}/address/${
-            voting.creator
-          }`;
-          voting.txUrl = `${self.store.etherScanRoot}/tx/${voting.tx_hash}`;
-          voting.currentUserCreator =
-            web3.eth.defaultAccount &&
-            web3.eth.defaultAccount.toLowerCase() ===
-              voting.creator.toLowerCase();
-
-          self.voting = voting;
-        },
-        error() {}
+            self.voting = voting;
+          },
+          error() {}
+        });
       });
     });
   },
@@ -97,7 +96,10 @@ export default {
       const self = this;
 
       const { csrfToken } = self;
-      const creator = web3.eth.defaultAccount;
+
+      if (!Utils.currentUser(voting.creator)) {
+        return self.$router.push("/votings");
+      }
 
       Utils.validateVotingForm(voting, () => {
         self.submitting = true;

@@ -59,5 +59,12 @@ export default {
     }
 
     return cb();
+  },
+  currentUser(address) {
+    address = "" + address;
+    return (
+      web3.eth.defaultAccount &&
+      web3.eth.defaultAccount.toLowerCase() === address.toLowerCase()
+    );
   }
 }
