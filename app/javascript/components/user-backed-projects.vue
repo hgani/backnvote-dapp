@@ -1,6 +1,6 @@
 <template lang="pug">
   div
-    .card.mb-3(v-for="voting in votings" v-if="hasVote")
+    .card.mb-3(v-for="voting in votings" v-if="hasVote && voting.currentUserVotes")
       .card-body
         h4 
           router-link(:to="`/votings/${voting.address}`" class="d-block") {{voting.label}}
